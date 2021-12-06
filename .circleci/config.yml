@@ -150,7 +150,7 @@ jobs:
             aws cloudformation deploy --template-file .circleci/files/backend.yml \
             --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople
+            --tags project=udapeople-${CIRCLE_WORKFLOW_ID:0:7}
 
       - run:
           name: Ensure front-end infrastructure exist
@@ -159,7 +159,7 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-              --tags project=udapeople
+              --tags project=udapeople-${CIRCLE_WORKFLOW_ID:0:7}
 
       - run:
           name: Add back-end ip to ansible inventory
@@ -167,7 +167,7 @@ jobs:
             echo "[WEB]" > .circleci/ansible/inventory.txt
 
             #Filter instances based on current workflow ID
-            aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> .circleci/ansible/inventory.txt
+            aws ec2 describe-instances --filters "Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> .circleci/ansible/inventory.txt
 
             echo "********** Inventory.txt Content **********"
             cat .circleci/ansible/inventory.txt
@@ -177,7 +177,7 @@ jobs:
           name: Add back-end ip to memstash
           command: |
             #Filter instances based on current workflow ID
-            BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
 
             echo "*********** BACKEND IP ***********"
             echo $BACKEND_IP
@@ -484,5 +484,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      # - cleanup:
+      #     requires: [cloudfront-update]
