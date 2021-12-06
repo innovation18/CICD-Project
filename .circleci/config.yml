@@ -179,9 +179,9 @@ jobs:
             #Filter instances based on current workflow ID
             BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
 
-            echo "********** BACKEND IP **********"
+            echo "*********** BACKEND IP ***********"
             echo $BACKEND_IP
-            echo "********** BACKEND IP **********"
+            echo "*********** BACKEND IP ***********"
 
             curl -H "Content-Type: text/plain" -H "token: fcdbffa0-2b8e-4731-8159-1b2d120b941f" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/BACKEND_IP_${CIRCLE_WORKFLOW_ID}
 
