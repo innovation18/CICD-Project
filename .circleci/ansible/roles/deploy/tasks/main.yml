@@ -1,31 +1,16 @@
 ---
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
+- name: "extract artifact."
+  unarchive:
+    src: /root/project/artifact.tar.gz
+    dest: /home/ubuntu/
 
-- name: "install dependencies."
+- name: "stop app."
   become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
+  shell: pm2 stop default
+  ignore_errors: yes
 
-- name: "install n"
+- name: "start app."
   become: true
-  npm:
-    name: n
-    global: yes
-    production: yes
-
-- name: "install nodejs 13.8.0"
-  become: true
-  shell: n 13.8.0
-
-- name: "install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
+  shell: |
+    npm install
+    pm2 start npm -- start
