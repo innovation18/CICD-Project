@@ -1,17 +1,118 @@
-Description: >
-  UdaPeople backend stack.
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Backend Infra Cloudformation template
 
 Parameters:
   ID:
     Description: Unique identifier.
     Type: String
 
+  EnvironmentName:
+    Description: Environment for logical grouping of our Resources
+    Type: String
+    Default: udapeople
+
+  AMI:
+    Description: AMI for the instance.
+    Type: String
+    Default: ami-09889d8d54f9e0a0e
+
+  vpcCIDR:
+    Description: CIDR Notation for VPC
+    Type: String
+    Default: "10.0.0.0/16"
+
+  PublicSubnetCIDR:
+    Description: CIDR Notation for Public Subnet
+    Type: String
+    Default: "10.0.0.0/24"
+
+  KeyPair:
+    Description: Key to SSH into EC2 Instance
+    Type: String
+    Default: phoenixpair
+
 Resources:
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  VPC:
+    Type: AWS::EC2::VPC
     Properties:
+      CidrBlock: !Ref vpcCIDR
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-VPC
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetCIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-PUB-SN
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-PUB-RT
+
+  PublicRouteTableAssocication:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyPair
+      ImageId: !Ref AMI
+      InstanceType: t3.micro
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - Ref: "VPCEC2SecurityGroup"
+          SubnetId: !Ref PublicSubnet
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: "10"
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-EC2Instance
+
+  VPCEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroupss
+    Properties:
+      GroupDescription: This Security Group allows inbound access on TCP port 80, 22 and also allows unrestricted outbound access.
       GroupName: !Sub UdaPeople-${ID}
-      GroupDescription: Allow port 22 and port 3030.
+      VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -21,17 +122,12 @@ Resources:
           FromPort: 3030
           ToPort: 3030
           CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
 
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      SecurityGroups:
-        - Ref: InstanceSecurityGroup
-      KeyName: udacity # If you use another key pair name, you should change this value to match.
-      # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
-      # Ubuntu 18 or higher works fine
-      ImageId: ami-068663a3c619dd892 
       Tags:
         - Key: Name
-          Value: !Sub backend-${ID}
+          Value: !Sub ${EnvironmentName}-EC2SecGroup
