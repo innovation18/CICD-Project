@@ -379,7 +379,7 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
               echo "Hey there! Here I come!!!"
-              return 1
+              return 0
             else
               return 1
             fi
