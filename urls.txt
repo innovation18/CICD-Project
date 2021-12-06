@@ -2,3 +2,7 @@ Provide a URL to your public GitHub repository. [URL01]
 
 - https://github.com/innovation18/CICD-Project
 
+Provide the public URL for your S3 Bucket (aka, your front-end). [URL02]
+
+- http://udapeople-f98e46f.s3-website-us-west-2.amazonaws.com
+
