@@ -441,13 +441,25 @@ jobs:
           command: |
             export oldworkflowID=$(curl -H "token: fcdbffa0-2b8e-4731-8159-1b2d120b941f" --request GET https://api.memstash.io/values/oldworkflowID_${CIRCLE_WORKFLOW_ID:0:7})
 
+            echo "-----------------------Current Stacks-------------------------"
+            echo "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "-----------------------Current Stacks-------------------------"
+
+
+            echo "-----------------------Old Stacks-------------------------"
+            echo "udapeople-backend-${oldworkflowID}"
+            echo "udapeople-frontend-${oldworkflowID}"
+            echo "-----------------------Old Stacks-------------------------"
+
+
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${oldworkflowId}" ]]
             then
-              echo '-----------------------Cannot Cleanup --------------------------'
-            else
               echo "-----------------------Delete Confirmed-------------------------"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${oldworkflowId}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${oldworkflowId}"         
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${oldworkflowId}" 
+            else
+              echo "-----------------------Cannot Cleanup --------------------------"
             fi
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
