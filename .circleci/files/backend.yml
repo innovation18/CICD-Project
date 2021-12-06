@@ -108,7 +108,7 @@ Resources:
           Value: !Sub ${EnvironmentName}-EC2Instance
 
   VPCEC2SecurityGroup:
-    Type: AWS::EC2::SecurityGroupss
+    Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: This Security Group allows inbound access on TCP port 80, 22 and also allows unrestricted outbound access.
       GroupName: !Sub UdaPeople-${ID}
