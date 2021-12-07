@@ -457,8 +457,8 @@ jobs:
             then
               echo "-----------------------Delete Confirmed-------------------------"
               
-              aws s3 rm s3://udapeople-${oldworkflowID} --recursive
-              sleep 20
+              # aws s3 rm s3://udapeople-${oldworkflowID} --recursive
+              # sleep 20
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${oldworkflowId}"
 
               aws cloudformation delete-stack --stack-name "udapeople-backend-${oldworkflowId}"
