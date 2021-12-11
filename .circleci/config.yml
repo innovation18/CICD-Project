@@ -486,11 +486,11 @@ workflows:
           requires: [test-backend]
       - deploy-infrastructure:
           requires: [scan-backend, scan-frontend]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
           filters:
             branches:
               only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
