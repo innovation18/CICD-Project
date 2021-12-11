@@ -8,4 +8,4 @@ Provide the public URL for your S3 Bucket (aka, your front-end). [URL02]
 
 Latest URL02 is below one.....
 
-http://udapeople-0afbaf8.s3-website-us-west-2.amazonaws.com [***LATEST***]
+http://udapeople-743680c.s3-website-us-west-2.amazonaws.com [***LATEST***]
